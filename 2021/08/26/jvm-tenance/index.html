@@ -1,0 +1,635 @@
+
+
+<!DOCTYPE html>
+<html lang="ZH-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.ico">
+  <link rel="icon" href="/img/favicon.ico">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="luna">
+  <meta name="keywords" content="博客,luna,java,spring,utils,linux,idea">
+  
+    <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas><script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script>
+  
+  <title>jvm_tuning - 十平方米小屋</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      
+        
+          
+        
+        <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.22.0/themes/prism.min.css" />
+      
+      
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"czy1024.github.io","root":"/","version":"1.8.9-a","typing":{"enable":true,"typeSpeed":65,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"#"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":true,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"1WlABYJFX3ooWNnixAEsUHg2-gzGzoHsz","app_key":"4HAsQYXea2QPsxkF5wOFFpbH","server_url":"https://cn-n1-cell1.leancloud.cn"}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 60vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>十平方米小屋</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                链接
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/paper/bg.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="jvm_tuning">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-author" aria-hidden="true"></i>
+      luna
+    </span>
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-08-26 15:45" pubdate>
+        2021年8月26日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      58
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- LeanCloud 统计文章PV -->
+      <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="leancloud-page-views"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">jvm_tuning</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：几秒前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h2 id="内存区域划分"><a href="#内存区域划分" class="headerlink" title="内存区域划分"></a>内存区域划分</h2><p>限定商用虚拟机基本都采用分代收集算法进行垃圾回收。根据对象的生命周期的不同将内存划分为几块，然后根据各块的特点采用最适当的收集算法。大批对象死去、少量对象存活的，使用复制算法，复制成本低；对象存活率高、没有额外空间进行分配担保的，采用标记-清除算法或者标记-整理算法。</p>
+<p><img src="https://images2017.cnblogs.com/blog/285952/201801/285952-20180131105449984-2130189134.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>从上面的图可以看出， JVM区域总体分两类，heap区和非heap区。 </p>
+<p>1.heap区又分为： </p>
+<ul>
+<li>Eden Space（伊甸园）、 </li>
+<li>Survivor Space(幸存者区)、 </li>
+<li>Old Gen（老年代）。</li>
+</ul>
+<p>2.非heap区又分： </p>
+<ul>
+<li>Code Cache(代码缓存区)； </li>
+<li>Perm Gen（永久代）； </li>
+<li>Jvm Stack(java虚拟机栈)； </li>
+<li>Local Method Statck(本地方法栈)；<br>关于java堆，新生代，老年代，Eden空间，From Survivor空间，To Survivor空间<br>java进程运行过程中创建的对象存放在堆中，堆被划分成两个不同的区域：新生代 ( Young )、老年代 ( Old )。新生代 ( Young ) 又被划分为三个区域：Eden、From Survivor、To Survivor。<br>堆的内存模型大致为：</li>
+</ul>
+<p>默认的，新生代 ( Young ) 与老年代 ( Old ) 的比例的值为 1:2 ( 该值可以通过参数 –XX:NewRatio 来指定 )，即：新生代 ( Young ) = 1/3 的堆空间大小。<br>老年代 ( Old ) = 2/3 的堆空间大小。其中，新生代 ( Young ) 被细分为 Eden 和 两个 Survivor 区域，这两个 Survivor 区域分别被命名为 from 和 to，以示区分。<br>默认的，Edem : from : to = 8 : 1 : 1 ( 可以通过参数 –XX:SurvivorRatio 来设定 )，即： Eden = 8/10 的新生代空间大小，from = to = 1/10 的新生代空间大小。<br>JVM 每次只会使用 Eden 和其中的一块 Survivor 区域来为对象服务，所以无论什么时候，总是有一块 Survivor 区域是空闲着的。<br>因此，新生代实际可用的内存空间为 9/10 ( 即90% )的新生代空间。</p>
+<p>新生代是 GC 收集垃圾的频繁区域。<br>当对象在 Eden ( 包括一个 Survivor 区域，这里假设是 from 区域 ) 出生后，在经过一次 Minor GC 后，如果对象还存活，并且能够被另外一块 Survivor 区域所容纳<br>( 上面已经假设为 from 区域，这里应为 to 区域，即 to 区域有足够的内存空间来存储 Eden 和 from 区域中存活的对象 )，则使用复制算法将这些仍然还存活的对象复制到另外一块 Survivor 区域 ( 即 to 区域 ) 中，然后清理所使用过的 Eden 以及 Survivor 区域 ( 即 from 区域 )，并且将这些对象的年龄设置为1，以后对象在 Survivor 区每熬过一次 Minor GC，就将对象的年龄 + 1，当对象的年龄达到某个值时 ( 默认是 15 岁，可以通过参数 -XX:MaxTenuringThreshold 来设定 )，这些对象就会成为老年代。<br>但这也不是一定的，对于一些较大的对象 ( 即需要分配一块较大的连续内存空间 ) 则是直接进入到老年代。</p>
+<p>From Survivor区域与To Survivor区域是交替切换空间，在同一时间内两者中只有一个不为空<br>2.内存区域介绍</p>
+<h3 id="1-年轻代："><a href="#1-年轻代：" class="headerlink" title="1.年轻代："></a>1.年轻代：</h3><p>HotSpot JVM把年轻代分为了三部分：1个Eden区和2个Survivor区（分别叫from和to）。默认比例为8：1,为啥默认会是这个比例，接下来我们会聊到。一般情况下，新创建的对象都会被分配到Eden区(一些大对象特殊处理),这些对象经过第一次Minor GC后，如果仍然存活，将会被移到Survivor区。对象在Survivor区中每熬过一次Minor GC，年龄就会增加1岁，当它的年龄增加到一定程度时，就会被移动到年老代中。</p>
+<p>因为年轻代中的对象基本都是朝生夕死的(80%以上)，所以在年轻代的垃圾回收算法使用的是复制算法，复制算法的基本思想就是将内存分为两块，每次只用其中一块，当这一块内存用完，就将还活着的对象复制到另外一块上面。复制算法不会产生内存碎片。</p>
+<p>在GC开始的时候，对象只会存在于Eden区和名为“From”的Survivor区，Survivor区“To”是空的。紧接着进行GC，Eden区中所有存活的对象都会被复制到“To”，而在“From”区中，仍存活的对象会根据他们的年龄值来决定去向。年龄达到一定值(年龄阈值，可以通过-XX:MaxTenuringThreshold来设置)的对象会被移动到年老代中，没有达到阈值的对象会被复制到“To”区域。经过这次GC后，Eden区和From区已经被清空。这个时候，“From”和“To”会交换他们的角色，也就是新的“To”就是上次GC前的“From”，新的“From”就是上次GC前的“To”。不管怎样，都会保证名为To的Survivor区域是空的。Minor GC会一直重复这样的过程，直到“To”区被填满，“To”区被填满之后，会将所有对象移动到年老代中。</p>
+<p><img src="https://images2017.cnblogs.com/blog/285952/201801/285952-20180131143358062-1502789309.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>有关年轻代的JVM参数</p>
+<p>1)-XX:NewSize和-XX:MaxNewSize</p>
+<p>用于设置年轻代的大小，建议设为整个堆大小的1/3或者1/4,两个值设为一样大。</p>
+<p>2)-XX:SurvivorRatio</p>
+<p>用于设置Eden和其中一个Survivor的比值，这个值也比较重要。</p>
+<p>3)-XX:+PrintTenuringDistribution</p>
+<p>这个参数用于显示每次Minor GC时Survivor区中各个年龄段的对象的大小。</p>
+<p>4).-XX:InitialTenuringThreshol和-XX:MaxTenuringThreshold</p>
+<p>用于设置晋升到老年代的对象年龄的最小值和最大值，每个对象在坚持过一次Minor GC之后，年龄就加1。</p>
+<h3 id="2-old老年代"><a href="#2-old老年代" class="headerlink" title="2.old老年代"></a>2.old老年代</h3><p>老年代，用于存放新生代中经过多次垃圾回收仍然存活的对象，也有可能是新生代分配不了内存的大对象会直接进入老年代。经过多次垃圾回收都没有被回收的对象，这些对象的年代已经足够old了，就会放入到老年代。</p>
+<p>当老年代被放满的之后，虚拟机会进行垃圾回收，称之为Major GC。由于Major GC除并发GC外均需对整个堆进行扫描和回收，因此又称为Full GC。</p>
+<p>heap区即堆内存，整个堆大小=年轻代大小 + 老年代大小。堆内存默认为物理内存的1/64(&lt;1GB)；默认空余堆内存小于40%时，JVM就会增大堆直到-Xmx的最大限制，可以通过MinHeapFreeRatio参数进行调整；默认空余堆内存大于70%时，JVM会减少堆直到-Xms的最小限制，可以通过MaxHeapFreeRatio参数进行调整。</p>
+<h3 id="3-Code-Cache代码缓存区"><a href="#3-Code-Cache代码缓存区" class="headerlink" title="3.Code Cache代码缓存区"></a>3.Code Cache代码缓存区</h3><p>它主要用于存放JIT所编译的热点代码。CodeCache代码缓冲区的大小在client模式下默认最大是32m，在server模式下默认是48m，这个值也是可以设置的，它所对应的JVM参数为ReservedCodeCacheSize 和 InitialCodeCacheSize，可以通过如下的方式来为Java程序设置。</p>
+<p><code>-XX:ReservedCodeCacheSize=128m</code></p>
+<p>CodeCache缓存区是可能被充满的，当CodeCache满时，后台会收到CodeCache is full的警告信息，如下所示：<br>“CompilerThread0” java.lang.OutOfMemoryError: requested 2854248 bytes for Chunk::new. Out of swap space?</p>
+<h3 id="4-Perm-Gen-永久代-JDK1-8之后被元空间替代"><a href="#4-Perm-Gen-永久代-JDK1-8之后被元空间替代" class="headerlink" title="4.Perm Gen(永久代) (JDK1.8之后被元空间替代)"></a>4.Perm Gen(永久代) (JDK1.8之后被元空间替代)</h3><p>Perm Gen全称是Permanent Generation space，称之为永久代，其实指的就是这个方法区。不过方法区和“PermGen space”又有着本质的区别。前者是 JVM 的规范，而后者则是 JVM 规范的一种实现，并且只有 HotSpot 才有 “PermGen space”，而对于其他类型的虚拟机，如 JRockit（Oracle）、J9（IBM） 并没有“PermGen space”。</p>
+<p>由于方法区主要存储类的相关信息，Class在被Load进入这个区域后，如果应用程序LOAD很多Class的话，就很可能会出现PermGen space错误，比如对于动态生成类的情况比较容易出现永久代的内存溢出。它的默认大小为物理内存的1/64。</p>
+<h2 id="JVM分析"><a href="#JVM分析" class="headerlink" title="JVM分析"></a>JVM分析</h2><h4 id="jmap-heap-1234-查看进程号为1234的Java程序的整个jvm内存状态"><a href="#jmap-heap-1234-查看进程号为1234的Java程序的整个jvm内存状态" class="headerlink" title="jmap -heap 1234 查看进程号为1234的Java程序的整个jvm内存状态"></a>jmap -heap 1234 查看进程号为1234的Java程序的整个jvm内存状态</h4><h4 id="jmap-histo-1234-查找进程号为1234的java程序的jvm堆中对象详细占用情况"><a href="#jmap-histo-1234-查找进程号为1234的java程序的jvm堆中对象详细占用情况" class="headerlink" title="jmap -histo 1234 查找进程号为1234的java程序的jvm堆中对象详细占用情况"></a>jmap -histo 1234 查找进程号为1234的java程序的jvm堆中对象详细占用情况</h4><h4 id="jmap-dump-format-b-file-my-dump-1234-导出1234进程的java程序的整个JVM信息"><a href="#jmap-dump-format-b-file-my-dump-1234-导出1234进程的java程序的整个JVM信息" class="headerlink" title="jmap -dump:format=b,file=/my.dump 1234  导出1234进程的java程序的整个JVM信息"></a>jmap -dump:format=b,file=/my.dump 1234  导出1234进程的java程序的整个JVM信息</h4><h4 id="jhat-J-Xmx1024M-my-dump-启动web服务查看jmap导出的java程序的jvm信息。"><a href="#jhat-J-Xmx1024M-my-dump-启动web服务查看jmap导出的java程序的jvm信息。" class="headerlink" title="jhat -J-Xmx1024M /my.dump, 启动web服务查看jmap导出的java程序的jvm信息。"></a>jhat -J-Xmx1024M /my.dump, 启动web服务查看jmap导出的java程序的jvm信息。</h4><h4 id="jstack-1234-查看1234进程的所有堆栈信息。"><a href="#jstack-1234-查看1234进程的所有堆栈信息。" class="headerlink" title="jstack 1234 查看1234进程的所有堆栈信息。"></a>jstack 1234 查看1234进程的所有堆栈信息。</h4><h4 id="以上命令的功能都可以从jVisualVM程序获取，双击运行即可。"><a href="#以上命令的功能都可以从jVisualVM程序获取，双击运行即可。" class="headerlink" title="以上命令的功能都可以从jVisualVM程序获取，双击运行即可。"></a>以上命令的功能都可以从jVisualVM程序获取，双击运行即可。</h4><h2 id="jmap是java自带的工具"><a href="#jmap是java自带的工具" class="headerlink" title="jmap是java自带的工具"></a>jmap是java自带的工具</h2><p>查看整个JVM内存状态</p>
+<p>jmap -heap [pid]</p>
+<p>要注意的是在使用CMS GC 情况下，jmap -heap的执行有可能会导致JAVA 进程挂起</p>
+<p>查看JVM堆中对象详细占用情况</p>
+<p>jmap -histo [pid]</p>
+<p>导出整个JVM 中内存信息</p>
+<p>jmap -dump:format=b,file=文件名 [pid]</p>
+<p>jhat是sun 1.6及以上版本中自带的一个用于分析JVM 堆DUMP 文件的工具，基于此工具可分析JVM HEAP 中对象的内存占用情况</p>
+<p>jhat -J-Xmx1024M [file]  （此处的file指的是jmap -dump导出的内存数据文件）</p>
+<p>执行后等待console 中输入start HTTP server on port 7000 即可使用浏览器访问 IP：7000</p>
+<p>eclipse Memory Analyzer</p>
+<p>Eclipse 提供的一个用于分析JVM 堆Dump文件的插件。借助这个插件可查看对象的内存占用状况，引用关系，分析内存泄露等。</p>
+<p><a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://www.eclipse.org/mat/">http://www.eclipse.org/mat/</a></p>
+<p>kill -3 [pid]</p>
+<p>在Linux 上找到Java所在的进程号，然后执行以上命令，线程的相关信息就输出到console</p>
+<h2 id="jstack"><a href="#jstack" class="headerlink" title="jstack"></a>jstack</h2><p>jstack 是sun JDK 自带的工具，通过该工具可以看到JVM 中线程的运行状况，包括锁等待，线程是否在运行</p>
+<p>执行 jstack [pid] ,线程的所有堆栈信息</p>
+<p>“http-8080-10” daemon prio=10 tid=x0a949bb60 nid=0x884 waiting for monitor entry […]</p>
+<p>“http-8080-10” 这个线程处于等待状态。 waiting for monitor entry 如果在连续几次输出线程堆栈信息都存在于同一个或多个线程上时，则说明系统中有锁竞争激烈，死锁，或锁饿死的想象。</p>
+<p>“http-8080-11” daemon prio=10 tix=xxx nid=xxx in object.wait() […]</p>
+<p>java.lang.Thread.State:waiting (on object monitor)</p>
+<p>该表示http-8080-11的线程处于对象的Wait 上，等待其他线程的唤醒，这也是线程池的常见用法。</p>
+<p>“Low Memory Detector”daemon prio=10 tix=xx nid=xxx runnable […] java.lang.Thread.State:runnable</p>
+<p>表示“Low Memory Detector” 的线程处于Runable状态，等待获取ＣＰＵ的使用权.</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://zhumeng8337797.blog.163.com/blog/static/100768914201242410583187/">http://zhumeng8337797.blog.163.com/blog/static/100768914201242410583187/</a></p>
+<h2 id="jvisualvm"><a href="#jvisualvm" class="headerlink" title="jvisualvm"></a>jvisualvm</h2><p><strong>一.Java VisualVM 概述</strong></p>
+<p>对于使用命令行远程监控jvm 太麻烦 。 在jdk1.6 中 Oracle 提供了一个新的可视化的。 JVM 监控工具 Java VisualVM 。jvisualvm.exe 在JDK 的 bin 目录下。</p>
+<p>双击启动 Java VisualVM 后可以看到窗口左侧 “应用程序 ”栏中有“ 本地 ”、“远程 ” 、“快照 ”三个项目。</p>
+<p>“本地 ”下显示的是在 localhost 运行的 Java 程序的资源占用情况，如果本地有 Java 程序在运行的话启动 Java VisualVM 即可看到相应的程序名，点击程序名打开相应的资源监控菜单，以图形的形式列出程序所占用的 CPU 、 Heap 、 PermGen 、类、线程的 统计信息。</p>
+<p>“远程” 项下列出的远程主机上的 Java 程序的资源占用情况，但需要在远程主机上运行 jstatd 守护程序</p>
+<p>VisualVM分为 3 类， 本地 它会自动侦测到，并显示出来</p>
+<p>双击Local 下的任一节点，看到右边的变化 ，你可以监控 CPU ，内存，类，线程等运行状况，实时监控服务器性能。</p>
+<p>右键 VisualVM我们可以看到 Thread Dump, Heap Dump</p>
+<p>做 Thread Dump 很快，马上就可以看到结果</p>
+<p>Heap Dump要稍花费一些时间（可以看到当前 heap 里对象的数量及占用的比例，做 OOM 很好用）</p>
+<p>对其功能不再做描述，可以查阅网上相关质量，我们主要讲的是如何使用 VisualVM 远程监控。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/java/">java</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/jvm/">jvm</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/06/23/mall-attr/">
+                        <span class="hidden-mobile">mall_attr</span>
+                        <span class="visible-mobile">Nächster</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.lazyComments('valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', function () {
+        new Valine({
+          el: "#valine",
+          app_id: "Jf1XC66LVfvBgBpG1uzXEivd-gzGzoHsz",
+          app_key: "UyOEEpxFaJC2kPqgBkDOeMPE",
+          placeholder: "说点什么",
+          path: window.location.pathname,
+          avatar: "retro",
+          meta: ["nick","mail","link"],
+          pageSize: "10",
+          lang: "zh-CN",
+          highlight: true,
+          recordIP: true,
+          serverURLs: "https://jf1xc66l.lc-cn-n1-shared.com",
+        });
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the
+    <a target="_blank" href="https://valine.js.org" rel="nofollow noopener noopener">comments powered by Valine.</a>
+  </noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-x-md">
+    <div class="container custom post-custom mx-auto">
+      <img src="https://octodex.github.com/images/jetpacktocat.png" srcset="/img/loading.gif" lazyload class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Suchen</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">Stichwort</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+          <script src="https://g.joyinshare.com/hc/ribbon.min.js"></script><script src="/js/fireworks.js"></script><script src="https://api.vvhan.com/api/snow"></script>
+        </div>
+      </div>
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <i class="iconfont icon-love"></i> <a href="https://github.com/czy1024" target="_blank" rel="nofollow noopener"><span>luna</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":true,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+    
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
